@@ -1,74 +1,127 @@
 # Klik Store API
 
-Backend Developer Technical Assignment
+Backend Developer Technical Assignment\
+Author: Agnes Abigael Hutauruk
 
-## Tech Stack
-- Java 17
-- Spring Boot 3
-- Spring Data JPA
-- Spring Security (JWT)
-- PostgreSQL
-- Maven
+------------------------------------------------------------------------
 
----
+# Overview
 
-## Features
+Klik Store API adalah RESTful backend service yang dibangun menggunakan
+Spring Boot 3 dengan implementasi:
 
-- Province, Branch, Store management
-- Soft Delete (isDeleted flag)
-- Whitelist Store logic
-- Pagination
-- DTO-based response
-- JWT Authentication
-- Simple login demo page
+-   Layered Architecture (Controller → Repository → Entity)
+-   JWT Authentication
+-   Soft Delete mechanism
+-   Whitelist Store logic
+-   Pagination
+-   DTO-based response mapping
+-   PostgreSQL integration
 
----
+------------------------------------------------------------------------
 
-## Authentication
+# Architecture
 
-Login endpoint:
+Client (Postman / Browser) ↓ Spring Security (JWT Filter) ↓ Controller
+Layer ↓ Repository Layer (JPA) ↓ PostgreSQL Database
+
+------------------------------------------------------------------------
+
+# Tech Stack
+
+-   Java 17
+-   Spring Boot 3
+-   Spring Data JPA
+-   Spring Security (JWT)
+-   PostgreSQL
+-   Maven
+-   Lombok
+
+------------------------------------------------------------------------
+
+# Features
+
+## Province, Branch, Store Management
+
+-   Province memiliki banyak Branch (1:N)
+-   Branch memiliki banyak Store (1:N)
+-   Store dapat dimasukkan ke dalam Whitelist
+
+## Soft Delete
+
+Semua entity menggunakan flag `isDeleted = true/false`. Data tidak
+benar-benar dihapus dari database.
+
+## Whitelist Store Logic
+
+-   Store whitelist tetap ditampilkan
+-   Store non-whitelist mengikuti filtering province
+-   Duplicate store dihilangkan menggunakan Set logic
+
+## Pagination
+
+Endpoint `/stores` mendukung pagination: - page (default: 0) - size
+(default: 10)
+
+------------------------------------------------------------------------
+
+# Authentication
+
+## Login
 
 POST /auth/login
 
-Body:
-{
-"username": "admin",
-"password": "admin"
-}
+Request: { "username": "admin", "password": "admin" }
 
-Response:
-JWT token
+Response: { "token": "jwt_token_here" }
 
-Use Bearer Token in Authorization header.
+Gunakan token pada header:
 
----
+Authorization: Bearer `<token>`{=html}
 
-## Example API
+------------------------------------------------------------------------
 
-Get Stores by Province:
+# API Endpoint
 
-GET /stores?provinceName=Bandung
+## GET /stores?provinceName=Bandung
 
-Header:
-Authorization: Bearer <token>
+Header: Authorization: Bearer `<token>`{=html}
 
----
+Query Params: - provinceName (required) - page (optional) - size
+(optional)
 
-## Database
+------------------------------------------------------------------------
 
-Using PostgreSQL.
+# Database
 
-Configure in application.properties:
+Menggunakan PostgreSQL.
+
+Konfigurasi di application.properties:
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/klik_store
 spring.datasource.username=postgres
 spring.datasource.password=yourpassword
 
----
+------------------------------------------------------------------------
 
-## Run Application
+# Run Application
 
-mvn spring-boot:run
+Windows: mvnw.cmd clean install mvnw.cmd spring-boot:run
 
-Access:
-http://localhost:8080/login.html
+Access: http://localhost:8080/login.html
+
+------------------------------------------------------------------------
+
+# Entity Relationship
+
+Province (1) → (N) Branch\
+Branch (1) → (N) Store\
+Store (1) → (1) WhitelistStore
+
+
+<img width="557" height="517" alt="ERD drawio" src="https://github.com/user-attachments/assets/2279bc7a-e1e1-4899-bb88-e0c7feb05c6f" />
+
+------------------------------------------------------------------------
+
+Project ini dibuat sebagai bagian dari Backend Developer Technical
+Assignment.
