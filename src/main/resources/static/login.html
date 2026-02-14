@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Klik Store Demo</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<form id="loginForm">
+    <label>Username:</label><br>
+    <input type="text" id="username" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">Login</button>
+</form>
+
+<p id="loginResult"></p>
+
+<hr>
+
+<h2>Call Stores API</h2>
+
+<label>Province Name:</label><br>
+<input type="text" id="provinceInput" placeholder="bandung"><br><br>
+
+<button onclick="callStores()">Call Stores</button>
+
+<pre id="apiResult"></pre>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        fetch("/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.token) {
+                localStorage.setItem("jwtToken", data.token);
+                document.getElementById("loginResult").innerText = "Login success! Token saved.";
+            } else {
+                document.getElementById("loginResult").innerText = "Login failed.";
+            }
+        })
+        .catch(error => {
+            document.getElementById("loginResult").innerText = "Error occurred.";
+        });
+    });
+
+    function callStores() {
+
+        const token = localStorage.getItem("jwtToken");
+        const province = document.getElementById("provinceInput").value;
+
+        if (!token) {
+            alert("Please login first!");
+            return;
+        }
+
+        fetch(`/stores?provinceName=${province}`, {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+        .then(response => {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error("Unauthorized. Please login again.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById("apiResult").innerText =
+                JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            document.getElementById("apiResult").innerText =
+                "Error: " + error.message;
+        });
+    }
+</script>
+
+</body>
+</html>
